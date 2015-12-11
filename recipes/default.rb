@@ -117,6 +117,11 @@ template "#{node['beaver']['config_path']}/#{node['beaver']['config_file']}" do
   notifies :restart, 'service[beaver]'
 end
 
+log = ''
+if node['beaver']['enable_logging']
+  log = "-l #{node['beaver']['log_path']}/#{node['beaver']['log_file']}"
+end
+
 # setup the appropriate init script for the platform
 if node['platform'] == 'ubuntu' && node['platform_version'].to_f >= 12.04
   template '/etc/init/beaver.conf' do
@@ -127,8 +132,7 @@ if node['platform'] == 'ubuntu' && node['platform_version'].to_f >= 12.04
     variables(
       :config_path => node['beaver']['config_path'],
       :config_file => node['beaver']['config_file'],
-      :log_path => node['beaver']['log_path'],
-      :log_file => node['beaver']['log_file'],
+      :log => log,
       :pid_file => node['beaver']['pid_file'],
       :user => node['beaver']['user'],
       :group => node['beaver']['group']
@@ -144,6 +148,7 @@ else
     variables(
       :config_path => node['beaver']['config_path'],
       :config_file => node['beaver']['config_file'],
+      :enable_logging => node['beaver']['enable_logging'],
       :log_path => node['beaver']['log_path'],
       :log_file => node['beaver']['log_file'],
       :pid_file => node['beaver']['pid_file'],
